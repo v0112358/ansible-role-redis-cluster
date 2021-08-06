@@ -16,6 +16,7 @@
         enablerepo: remi
         name: redis
         state: latest
+        update_cache: yes
       when: ansible_distribution_major_version == 7
 
     - name: redis-cluster-install | Install Redis package
@@ -23,6 +24,7 @@
         enablerepo: remi
         name: redis
         state: latest
+        update_cache: yes
       when: ansible_distribution_major_version == 8
 
   when: redis_bin.stat.exists == False
