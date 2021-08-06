@@ -33,7 +33,7 @@
 
 - name: redis-cluster-install | Create a directory for the systemd service modification
   ansible.builtin.file:
-    path: '/usr/lib/systemd/system/redis.service.d'
+    path: '/usr/lib/systemd/system/redis-server.service.d'
     state: directory
     owner: root
     group: root
@@ -42,7 +42,7 @@
 - name: redis-cluster-install | Update Redis systemd resource limit
   ansible.builtin.template:
     src: systemd/custom.conf.j2
-    dest: '/usr/lib/systemd/system/redis.service.d/custom.conf'
+    dest: '/usr/lib/systemd/system/redis-server.service.d/custom.conf'
     owner: root
     group: root
     mode: 0644

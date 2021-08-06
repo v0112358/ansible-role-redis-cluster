@@ -3,14 +3,23 @@
   ansible.builtin.template:
     src: etc/redis/redis.conf.j2
     dest: /etc/redis/redis.conf
-    mode: 0644
+    mode: 0640
     owner: redis
     group: redis
   notify: Warning file /etc/redis/redis.conf has been changed
 
-- name: redis-cluster-configure | Ensures redis is started and enabled
+- name: redis-cluster-configure | Ensures redis service is started and enabled
   ansible.builtin.systemd:
     name: redis
     daemon_reload: True
     enabled: True
     state: started
+  when: ansible_os_family != "Debian"
+
+- name: redis-cluster-configure | Ensures redis-server service is started and enabled
+  ansible.builtin.systemd:
+    name: redis-server
+    daemon_reload: True
+    enabled: True
+    state: started
+  when: ansible_os_family == "Debian"
