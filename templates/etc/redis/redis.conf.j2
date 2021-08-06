@@ -1,0 +1,116 @@
+# {{ ansible_managed }}
+
+bind {{ redis_cluster_conf.bind | default('0.0.0.0') }}
+protected-mode {{ redis_cluster_conf.protected_mode | default('yes') }}
+port {{ redis_cluster_conf.port | default('6379') }}
+
+tcp-backlog {{ redis_cluster_conf.tcp_backlog | default('511') }}
+timeout {{ redis_cluster_conf.timeout | default('0') }}
+tcp-keepalive {{ redis_cluster_conf.tcp_keepalive | default('300') }}
+
+################################# GENERAL #####################################
+
+daemonize {{ redis_cluster_conf.daemonize | default('yes') }}
+supervised {{ redis_cluster_conf.supervised | default('systemd') }}
+pidfile /var/run/redis/redis-server.pid
+loglevel {{ redis_cluster_conf.loglevel | default('notice') }}
+logfile {{ redis_cluster_conf.logfile | default('/var/log/redis/redis.log') }}
+databases {{ redis_cluster_conf.databases | default('16') }}
+
+################################ SNAPSHOTTING  ################################
+{% if redis_cluster_conf.save is defined %}
+{% for save in redis_cluster_conf.save %}
+save {{ save }}
+{% endfor %}
+{% endif %}
+stop-writes-on-bgsave-error {{ redis_cluster_conf.stop_writes_on_bgsave_error | default('no') }}
+rdbcompression {{ redis_cluster_conf.rdbcompression | default('yes') }}
+rdbchecksum {{ redis_cluster_conf.rdbchecksum | default('yes') }}
+dbfilename {{ redis_cluster_conf.dbfilename | default('redis_dump_default.rdb') }}
+dir {{ redis_cluster_conf.dir | default('/var/lib/redis') }}
+
+################################# REPLICATION #################################
+
+repl-backlog-size {{ redis_cluster_conf.repl_backlog_size | default('20mb') }}
+repl-diskless-sync {{ redis_cluster_conf.repl_diskless_sync | default('yes') }}
+repl-diskless-sync-delay {{ redis_cluster_conf.repl_diskless_sync_delay | default('10') }}
+repl-disable-tcp-nodelay {{ redis_cluster_conf.repl_disable_tcp_nodelay | default('no') }}
+slave-priority {{ redis_cluster_conf.slave_priority | default('100') }}
+min-slaves-to-write {{ redis_cluster_conf.min_slaves_to_write | default('0') }}
+min-slaves-max-lag {{ redis_cluster_conf.min_slaves_max_lag | default('20') }}
+
+################################## SECURITY ###################################
+{% if redis_cluster_conf.requirepass is defined %}
+requirepass {{ redis_cluster_conf.requirepass }}
+{% endif %}
+{% if redis_cluster_conf.rename_commands is defined %}
+{% for command in redis_cluster_conf.rename_commands -%}
+rename-command {{ command }} "SEC{{ command }}"
+{% endfor %}
+{% endif %}
+
+################################### LIMITS ####################################
+
+maxclients {{ redis_cluster_conf.maxclients | default('100000') }}
+maxmemory {{ redis_cluster_conf.maxmemory | default('256m') }}
+
+maxmemory-policy {{ redis_cluster_conf.maxmemory_policy | default('allkeys-lru') }}
+maxmemory-samples {{ redis_cluster_conf.maxmemory_samples | default('5') }}
+
+############################## APPEND ONLY MODE ###############################
+
+appendonly {{ redis_cluster_conf.appendonly | default('yes') }}
+appendfilename {{ redis_cluster_conf.appendfilename | default('redis_appendonly_default.aof') }}
+appendfsync {{ redis_cluster_conf.appendfsync | default('everysec') }}
+no-appendfsync-on-rewrite {{ redis_cluster_conf.no_appendfsync_on_rewrite | default('no') }}
+auto-aof-rewrite-percentage {{ redis_cluster_conf.auto_aof_rewrite_percentage | default('150') }}
+auto-aof-rewrite-min-size {{ redis_cluster_conf.auto_aof_rewrite_min_size | default('128mb') }}
+aof-load-truncated {{ redis_cluster_conf.aof_load_truncated | default('yes') }}
+aof-use-rdb-preamble {{ redis_cluster_conf.aof_use_rdb_preamble | default('no') }}
+
+################################ LUA SCRIPTING  ###############################
+
+lua-time-limit {{ redis_cluster_conf.lua_time_limit | default('5000') }}
+
+################################ REDIS CLUSTER  ###############################
+{% if redis_cluster_conf.cluster_enabled is defined and redis_cluster_conf.cluster_enabled == 'yes' %}
+cluster-enabled {{ redis_cluster_conf.cluster_enabled | default('yes') }}
+cluster-config-file {{ redis_cluster_conf.cluster_config_file | default('/var/lib/redis/nodes_default.conf') }}
+cluster-node-timeout {{ redis_cluster_conf.cluster_node_timeout | default('5000') }}
+cluster-slave-validity-factor {{ redis_cluster_conf.cluster_slave_validity_factor | default('1') }}
+cluster-migration-barrier {{ redis_cluster_conf.cluster_migration_barrier | default('1') }}
+cluster-require-full-coverage {{ redis_cluster_conf.cluster_require_full_coverage | default('no') }}
+cluster-allow-reads-when-down {{ redis_cluster_conf.cluster_allow_reads_when_down | default('yes') }}
+repl-ping-slave-period {{ redis_cluster_conf.repl_ping_slave_period | default('2') }}
+{% endif %}
+
+
+################################## SLOW LOG ###################################
+
+slowlog-log-slower-than {{ redis_cluster_conf.slowlog_log_slower_than | default(10000) }}
+slowlog-max-len {{ redis_cluster_conf.slowlog_max_len | default(512) }}
+
+################################ LATENCY MONITOR ##############################
+
+latency-monitor-threshold {{ redis_cluster_conf.latency_monitor_threshold | default('3') }}
+
+############################# EVENT NOTIFICATION ##############################
+
+notify-keyspace-events {{ redis_cluster_conf.notify_keyspace_events | default('""') }}
+
+############################### ADVANCED CONFIG ###############################
+
+hash-max-ziplist-entries {{ redis_cluster_conf.hash_max_ziplist_entries | default('512') }}
+hash-max-ziplist-value {{ redis_cluster_conf.hash_max_ziplist_value | default('64') }}
+list-max-ziplist-size {{ redis_cluster_conf.list_max_ziplist_size | default('-2') }}
+list-compress-depth {{ redis_cluster_conf.list_compress_depth | default('0') }}
+set-max-intset-entries {{ redis_cluster_conf.set_max_intset_entries | default('512') }}
+zset-max-ziplist-entries {{ redis_cluster_conf.zset_max_ziplist_entries | default('128') }}
+zset-max-ziplist-value {{ redis_cluster_conf.zset_max_ziplist_value | default('64') }}
+hll-sparse-max-bytes {{ redis_cluster_conf.hll_sparse_max_bytes | default('3000') }}
+activerehashing {{ redis_cluster_conf.activerehashing | default('yes') }}
+client-output-buffer-limit normal {{ redis_cluster_conf.client_output_buffer_limit_normal | default('0 0 0')}}
+client-output-buffer-limit slave {{ redis_cluster_conf.client_output_buffer_limit_slave | default('256mb 64mb 60') }}
+client-output-buffer-limit pubsub {{ redis_cluster_conf.client_output_buffer_limit_pubsub | default('32mb 8mb 60') }}
+hz {{ redis_cluster_conf.hz | default('10') }}
+aof-rewrite-incremental-fsync {{ redis_cluster_conf.aof_rewrite_incremental_fsync | default('yes') }}

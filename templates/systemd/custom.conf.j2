@@ -1,0 +1,8 @@
+; {{ ansible_managed }}
+; /usr/lib/systemd/system/{{ item.key }}.service.d/custom.conf
+[Service]
+{% if item.key is defined %}
+{% for key, value in item.value.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,22 @@
+---
+- name: systemd reload
+  systemd:
+    daemon_reload: yes
+
+- name: restart redis
+  systemd:
+    name: redis
+    daemon_reload: True
+    enabled: True
+    state: restarted
+
+- name: restart redis-exporter
+  systemd:
+    name: redis-exporter
+    daemon_reload: True
+    enabled: True
+    state: restarted
+
+- name: Warning file /etc/redis/redis.conf has been changed
+  debug:
+    msg: "Warning: file /etc/redis/redis.conf has been changed. Please review your change before restart redis."

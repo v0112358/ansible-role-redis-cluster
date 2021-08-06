@@ -1,0 +1,15 @@
+---
+- include_tasks: redis-cluster-install-{{ ansible_os_family }}.yml
+  tags: [redis-cluster-install, install]
+
+- import_tasks: redis-cluster-operating-system-tweaks.yml
+  tags: [redis-cluster-operating-system-tweaks, operating-system-tweaks]
+
+- import_tasks: redis-cluster-configure.yml
+  tags: [redis-cluster-configure, configure]
+
+- import_tasks: redis-cluster-create-cluster.yml
+  tags: [redis-cluster-create-cluster, create-cluster]
+
+- import_tasks: redis-cluster-redis-exporter.yml
+  tags: [redis-cluster-redis-exporter, redis-exporter]

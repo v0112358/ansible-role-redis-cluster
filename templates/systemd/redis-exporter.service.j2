@@ -1,0 +1,15 @@
+# {{ ansible_managed }}
+# /etc/systemd/system/redis_exporter.service
+[Unit]
+Description=Redis Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=redis
+Group=redis
+Type=simple
+ExecStart=/usr/local/bin/redis_exporter -redis.addr redis://127.0.0.1:{{ redis_cluster_conf.port | default('6379') }}
+
+[Install]
+WantedBy=multi-user.target

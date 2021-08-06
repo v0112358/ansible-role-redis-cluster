@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+169.254.169.254 metadata.google.internal  # Added by Google
+
+{% for host in groups[hostvars[inventory_hostname].group_names[-1]] %}
+{{ hostvars[host]['ansible_eth0']['ipv4']['address'] }} {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_hostname'] }}
+{% endfor %}

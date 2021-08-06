@@ -1,0 +1,35 @@
+---
+# https://redis.io/topics/admin
+
+- name: redis-cluster-operating-system-tweaks | Set vm.overcommit_memory to 1
+  ansible.builtin.sysctl:
+    name: "vm.overcommit_memory"
+    value: '1'
+    sysctl_file: /etc/sysctl.d/65-redis.conf
+    state: present
+    reload: yes
+
+- name: redis-cluster-operating-system-tweaks | Set vm.swappiness to 5
+  ansible.builtin.sysctl:
+    name: "vm.swappiness"
+    value: '5'
+    sysctl_file: /etc/sysctl.d/65-redis.conf
+    state: present
+    reload: yes
+
+
+- name: redis-cluster-operating-system-tweaks | Persistence disable Transparent Huge Pages (THP)
+  ansible.builtin.template:
+    src: systemd/disable-transparent-huge-pages.service.j2
+    dest: /etc/systemd/system/disable-transparent-huge-pages.service
+    mode: 0644
+    owner: root
+    group: root
+
+- name: redis-cluster-operating-system-tweaks | Ensures disable-transparent-huge-pages is started and enabled
+  ansible.builtin.systemd:
+    name: disable-transparent-huge-pages
+    daemon_reload: True
+    enabled: True
+    state: started
+  changed_when: false

@@ -1,0 +1,52 @@
+---
+- name: redis-cluster-install | Check if Redis already installed
+  ansible.builtin.stat: path=/usr/bin/redis-server
+  register: redis_bin
+
+- name: redis-cluster-install | Install apt package requirements
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - gpg-agent
+    - curl
+    - procps
+
+- name: redis-cluster-install | Install Redis
+  block:
+    - name: redis-cluster-install | Add Redis source repository into sources list
+      ansible.builtin.apt_repository:
+        repo: ppa:redislabs/redis
+        filename: /etc/apt/sources.list.d/redis.list
+        state: present
+        update_cache: true
+
+    - name: redis-cluster-install | Install Redis package
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - redis
+
+  when: redis_bin.stat.exists == False
+
+- name: redis-cluster-install | Create a directory for the systemd service modification
+  ansible.builtin.file:
+    path: '/usr/lib/systemd/system/redis.service.d'
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: redis-cluster-install | Update Redis systemd resource limit
+  ansible.builtin.template:
+    src: systemd/custom.conf.j2
+    dest: '/usr/lib/systemd/system/redis.service.d/custom.conf'
+    owner: root
+    group: root
+    mode: 0644
+  with_dict: '{{ systemd_services }}'
+  notify: systemd reload
+  tags:
+    - update_mysqld_systemd_resource_limit

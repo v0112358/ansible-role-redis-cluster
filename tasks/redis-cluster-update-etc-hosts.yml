@@ -1,0 +1,9 @@
+---
+- name: redis-cluster-update-etc-hosts | Update /etc/hosts
+  ansible.builtin.template:
+    src: etc/hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes

@@ -1,0 +1,55 @@
+---
+- name: redis-cluster-create-cluster | Check if redis cluster already created
+  ansible.builtin.stat: path=/var/lib/redis/redis-cluster.created
+  register: redis_cluster_status
+
+- name: redis-cluster-create-cluster | Create redis cluster
+  block:
+    - name: redis-cluster-create-cluster | Get all ip address in group
+      ansible.builtin.set_fact:
+        redis_cluster_ip_address_list: "{{ groups[hostvars[inventory_hostname].group_names[-1]] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
+
+    - name: redis-cluster-create-cluster | Check redis_cluster_ip_address_list length
+      ansible.builtin.assert:
+        that:
+          - (redis_cluster_ip_address_list | length | int) % 2 == 0 and redis_cluster_replica > 0
+        fail_msg: "Cannot create redis cluster due to the_number_of_instances % 2 = 1. The_number_of_instances must even."
+        success_msg: "look good"
+      register: check_redis_cluster_length
+
+    - block:
+      - name: redis-cluster-create-cluster | Set redis_cluster_instances
+        ansible.builtin.set_fact:
+          redis_cluster_instances: ""
+
+      - name: redis-cluster-create-cluster | Mount redis_cluster_instances
+        ansible.builtin.set_fact:
+          redis_cluster_instances: "{{ redis_cluster_instances + item + ':' + redis_cluster_conf.port + ' ' }}"
+        with_items:
+          - "{{ redis_cluster_ip_address_list }}"
+
+      - name: redis-cluster-create-cluster | I will run this command bellow to create redis cluster
+        ansible.builtin.debug:
+          msg: "printf 'yes' | redis-cli --cluster create {{ redis_cluster_instances }}--cluster-replicas {{ redis_cluster_replica }}"
+
+      - name: redis-cluster-create-cluster | Create redis cluster via redis-cli
+        ansible.builtin.shell: "printf 'yes' | redis-cli --cluster create {{ redis_cluster_instances }}--cluster-replicas {{ redis_cluster_replica }}"
+        args:
+          creates: /var/lib/redis/redis-cluster.created
+        run_once: True
+        register: redis_cluster_created
+
+      - name: redis-cluster-create-cluster | Make created file if redis cluster is created
+        ansible.builtin.file:
+          path: /var/lib/redis/redis-cluster.created
+          state: touch
+          owner: redis
+          group: redis
+          mode: 0750
+        when: redis_cluster_created is defined and "All 16384 slots covered." in redis_cluster_created.stdout
+      
+      when: '"look good" in check_redis_cluster_length.msg'
+
+  when:
+    - redis_cluster_status.stat.exists == False
+    - inventory_hostname ==  groups[hostvars[inventory_hostname].group_names[-1]][0]

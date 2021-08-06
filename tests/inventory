@@ -1,0 +1,10 @@
+[redis_cluster:children]
+redis_cluster_infra
+
+[redis_cluster_infra]
+vm-dev-redis-infra-0
+vm-dev-redis-infra-1
+vm-dev-redis-infra-2
+vm-dev-redis-infra-3
+vm-dev-redis-infra-4
+vm-dev-redis-infra-5
