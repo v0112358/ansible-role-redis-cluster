@@ -11,8 +11,9 @@
         state: latest
         disable_gpg_check: yes
     
-    - name: redis-cluster-install | Install
+    - name: redis-cluster-install | Install Redis package
       ansible.builtin.yum:
+        enablerepo: remi
         name: redis
         state: latest
 

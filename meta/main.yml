@@ -37,10 +37,6 @@ galaxy_info:
     versions:
     - bionic
     - focal
-  - name: Debian
-    versions:
-    - stretch
-    - buster
 
   galaxy_tags:
   - database
