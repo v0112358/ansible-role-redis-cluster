@@ -10,12 +10,22 @@
         name: "http://rpms.remirepo.net/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm"
         state: latest
         disable_gpg_check: yes
-
+    
+    - name: redis-cluster-install | Enable DNF module redis:remi-6.2
+      shell: |
+        dnf module enable -y redis:remi-6.2
+      args:
+        warn: false
+      register: dnf_module_enable
+      changed_when: "'Nothing to do' not in dnf_module_enable.stdout"
+      when: ansible_distribution_major_version == "8"
+  
     - name: redis-cluster-install | Install Redis package
-      ansible.builtin.dnf:
+      ansible.builtin.yum:
         enablerepo: remi
         name: redis
         state: latest
+        update_cache: yes
 
   when: redis_bin.stat.exists == False
 
