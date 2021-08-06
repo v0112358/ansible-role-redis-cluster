@@ -10,9 +10,9 @@
         name: "http://rpms.remirepo.net/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm"
         state: latest
         disable_gpg_check: yes
-    
+
     - name: redis-cluster-install | Install Redis package
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         enablerepo: remi
         name: redis
         state: latest
