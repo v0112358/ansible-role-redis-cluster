@@ -1,6 +1,6 @@
 ---
 scenario:
-  innodb_cluster_and_mysqlrouter_on_the_same_instance:
+  default:
     - lint
     - converge
     - verify
