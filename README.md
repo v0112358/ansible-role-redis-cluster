@@ -2,7 +2,7 @@
 Ansible Role: Redis Cluster
 =========
 
-![CI](https://github.com/v0112358/ansible-role-redis-cluster/actions/workflows/main.yml/badge.svg) ![Ansible Role](https://img.shields.io/ansible/role/d/55913) [![GitHub license](https://img.shields.io/github/license/v0112358/ansible-role-redis-cluster)](https://github.com/v0112358/ansible-role-redis-cluster/blob/master/LICENSE.md)
+![CI](https://github.com/v0112358/ansible-role-redis-cluster/actions/workflows/main.yml/badge.svg) [![GitHub license](https://img.shields.io/github/license/v0112358/ansible-role-redis-cluster)](https://github.com/v0112358/ansible-role-redis-cluster/blob/master/LICENSE.md)
 
 Install and configure redis cluster on your system.
 
