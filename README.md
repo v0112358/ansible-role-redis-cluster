@@ -13,12 +13,12 @@ Example Inventory
 redis_cluster_infra
 
 [redis_cluster_infra]
-vm-dev-redis-infra-0
-vm-dev-redis-infra-1
-vm-dev-redis-infra-2
-vm-dev-redis-infra-3
-vm-dev-redis-infra-4
-vm-dev-redis-infra-5
+vm-dev-redis-infra-0    redis_role="master"
+vm-dev-redis-infra-1    redis_role="master"
+vm-dev-redis-infra-2    redis_role="master"
+vm-dev-redis-infra-3    redis_role="slave"
+vm-dev-redis-infra-4    redis_role="slave"
+vm-dev-redis-infra-5    redis_role="slave"
 ```
 Example Playbook
 ------------
@@ -47,7 +47,8 @@ These variables are set in defaults/main.yml.
 redis_cluster_replica: 1
 redis_cluster_conf:
   cluster_enabled: "yes"
-  port: "6379"
+  master_port: "6379"
+  slave_port: "6379"
   maxmemory: "64mb"
   rename_commands:
     - FLUSHDB

@@ -9,6 +9,32 @@
       ansible.builtin.set_fact:
         redis_cluster_ip_address_list: "{{ groups[hostvars[inventory_hostname].group_names[-1]] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
 
+    - name: redis-cluster-create-cluster | Set redis_cluster_master_ip_address_list
+      ansible.builtin.set_fact:
+        redis_cluster_master_ip_address_list: ""
+
+    - name: redis-cluster-create-cluster | Get all ip address with redis_role="master" in group
+      ansible.builtin.set_fact:
+        redis_cluster_master_ip_address_list: "{{ redis_cluster_master_ip_address_list + hostvars[master_item]['ansible_default_ipv4']['address'] + ':' + redis_cluster_conf.master_port + ' ' }}"
+      with_items: "{{ groups[hostvars[inventory_hostname].group_names[-1]] }}"
+      loop_control:
+        loop_var: master_item
+      when:
+        - hostvars[master_item].redis_role == "master"
+
+    - name: redis-cluster-create-cluster | Set redis_cluster_slave_ip_address_list
+      ansible.builtin.set_fact:
+        redis_cluster_slave_ip_address_list: ""
+
+    - name: redis-cluster-create-cluster | Get all ip address with redis_role="slave" in group
+      ansible.builtin.set_fact:
+        redis_cluster_slave_ip_address_list: "{{ redis_cluster_slave_ip_address_list + hostvars[slave_item]['ansible_default_ipv4']['address'] + ':' + redis_cluster_conf.slave_port + ' ' }}"
+      with_items: "{{ groups[hostvars[inventory_hostname].group_names[-1]] }}"
+      loop_control:
+        loop_var: slave_item
+      when:
+        - hostvars[slave_item].redis_role == "slave"
+
     - name: redis-cluster-create-cluster | Check redis_cluster_ip_address_list length
       ansible.builtin.assert:
         that:
@@ -18,22 +44,12 @@
       register: check_redis_cluster_length
 
     - block:
-      - name: redis-cluster-create-cluster | Set redis_cluster_instances
-        ansible.builtin.set_fact:
-          redis_cluster_instances: ""
-
-      - name: redis-cluster-create-cluster | Mount redis_cluster_instances
-        ansible.builtin.set_fact:
-          redis_cluster_instances: "{{ redis_cluster_instances + item + ':' + redis_cluster_conf.port + ' ' }}"
-        with_items:
-          - "{{ redis_cluster_ip_address_list }}"
-
       - name: redis-cluster-create-cluster | I will run this command bellow to create redis cluster
         ansible.builtin.debug:
-          msg: "printf 'yes' | redis-cli --cluster create {{ redis_cluster_instances }}--cluster-replicas {{ redis_cluster_replica }}"
+          msg: "printf 'yes' | redis-cli --cluster create {{ redis_cluster_master_ip_address_list + redis_cluster_slave_ip_address_list }}--cluster-replicas {{ redis_cluster_replica }}"
 
       - name: redis-cluster-create-cluster | Create redis cluster via redis-cli
-        ansible.builtin.shell: "printf 'yes' | redis-cli --cluster create {{ redis_cluster_instances }}--cluster-replicas {{ redis_cluster_replica }}"
+        ansible.builtin.shell: "printf 'yes' | redis-cli --cluster create {{ redis_cluster_master_ip_address_list + redis_cluster_slave_ip_address_list }}--cluster-replicas {{ redis_cluster_replica }}"
         args:
           creates: /var/lib/redis/redis-cluster.created
         run_once: True
@@ -47,7 +63,7 @@
           group: redis
           mode: 0750
         when: redis_cluster_created is defined and "All 16384 slots covered." in redis_cluster_created.stdout
-      
+
       when: '"look good" in check_redis_cluster_length.msg'
 
   when:

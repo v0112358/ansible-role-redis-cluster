@@ -2,7 +2,11 @@
 
 bind {{ redis_cluster_conf.bind | default('0.0.0.0') }}
 protected-mode {{ redis_cluster_conf.protected_mode | default('yes') }}
-port {{ redis_cluster_conf.port | default('6379') }}
+{% if redis_role is defined and redis_role == "master" %}
+port {{ redis_cluster_conf.master_port | default('6379') }}
+{% else %}
+port {{ redis_cluster_conf.slave_port | default('6379') }}
+{% endif %}
 
 tcp-backlog {{ redis_cluster_conf.tcp_backlog | default('511') }}
 timeout {{ redis_cluster_conf.timeout | default('0') }}

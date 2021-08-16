@@ -9,7 +9,10 @@ After=network-online.target
 User=redis
 Group=redis
 Type=simple
-ExecStart=/usr/local/bin/redis_exporter -redis.addr redis://127.0.0.1:{{ redis_cluster_conf.port | default('6379') }}
-
+{% if keydb_role is defined and keydb_role == "master" %}
+ExecStart=/usr/local/bin/redis_exporter -redis.addr redis://127.0.0.1:{{ redis_cluster_conf.master_port | default('6379') }}
+{% else %}
+ExecStart=/usr/local/bin/redis_exporter -redis.addr redis://127.0.0.1:{{ redis_cluster_conf.slave_port | default('6379') }}
+{% endif %}
 [Install]
 WantedBy=multi-user.target
