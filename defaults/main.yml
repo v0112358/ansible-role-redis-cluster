@@ -19,7 +19,7 @@ redis_exporter_packages:
 
 ######### Systemd limit
 systemd_services:
-  mysqld:
+  redis:
     LimitFSIZE: 'infinity'
     LimitCPU: 'infinity'
     LimitAS: 'infinity'

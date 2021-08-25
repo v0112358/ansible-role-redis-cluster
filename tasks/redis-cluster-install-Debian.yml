@@ -49,4 +49,4 @@
   with_dict: '{{ systemd_services }}'
   notify: systemd reload
   tags:
-    - update_mysqld_systemd_resource_limit
+    - update_redis_systemd_resource_limit
