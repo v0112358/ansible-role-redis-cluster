@@ -33,3 +33,4 @@
     enabled: True
     state: started
   changed_when: false
+  when: unprivileged_container == false 

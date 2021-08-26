@@ -1,4 +1,8 @@
 ---
+######### install options
+apt_repository_codename: '' # allow debian based distros to use packages from different version, e.g. ubuntu impish can use hirsute packages
+unprivileged_container: false # setting to true skips 'disable-transparent-huge-pages' service which won't work on unprivileged containers (e.g. on LCX)
+
 ######### redis config
 redis_cluster_replica: 1
 redis_cluster_conf:
