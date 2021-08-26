@@ -18,7 +18,7 @@
     - name: redis-cluster-install | Add Redis source repository into sources list
       ansible.builtin.apt_repository:
         repo: ppa:redislabs/redis
-        codename: '{{apt_repository_codename}}'
+        codename: '{{ apt_repository_codename }}'
         filename: /etc/apt/sources.list.d/redis.list
         state: present
         update_cache: true
