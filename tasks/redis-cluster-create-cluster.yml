@@ -38,8 +38,8 @@
     - name: redis-cluster-create-cluster | Check redis_cluster_ip_address_list length
       ansible.builtin.assert:
         that:
-          - (redis_cluster_ip_address_list | length | int) % 2 == 0 and redis_cluster_replica > 0
-        fail_msg: "Cannot create redis cluster due to the_number_of_instances % 2 = 1. The_number_of_instances must even."
+          - (redis_cluster_ip_address_list | length | int) % 2 == 0 or redis_cluster_replica == 0
+        fail_msg: "Cannot create redis cluster due to the_number_of_instances % 2 = 1. The_number_of_instances must be even for redis_cluster_replica = {{ redis_cluster_replica }}."
         success_msg: "look good"
       register: check_redis_cluster_length
 
