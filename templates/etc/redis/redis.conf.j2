@@ -86,6 +86,9 @@ cluster-migration-barrier {{ redis_cluster_conf.cluster_migration_barrier | defa
 cluster-require-full-coverage {{ redis_cluster_conf.cluster_require_full_coverage | default('no') }}
 cluster-allow-reads-when-down {{ redis_cluster_conf.cluster_allow_reads_when_down | default('yes') }}
 repl-ping-slave-period {{ redis_cluster_conf.repl_ping_slave_period | default('2') }}
+{% if redis_cluster_conf.requirepass is defined and redis_role == "slave" %}
+masterauth {{ redis_cluster_conf.requirepass }}
+{% endif %}
 {% endif %}
 
 
