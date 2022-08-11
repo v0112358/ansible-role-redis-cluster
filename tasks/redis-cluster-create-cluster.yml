@@ -4,6 +4,7 @@
   register: redis_cluster_status
 
 - name: redis-cluster-create-cluster | Create redis cluster
+  run_once: true
   block:
     - name: redis-cluster-create-cluster | Get all ip address in group
       ansible.builtin.set_fact:
@@ -16,7 +17,7 @@
     - name: redis-cluster-create-cluster | Get all ip address with redis_role="master" in group
       ansible.builtin.set_fact:
         redis_cluster_master_ip_address_list: "{{ redis_cluster_master_ip_address_list + hostvars[master_item]['ansible_default_ipv4']['address'] + ':' + redis_cluster_conf.master_port + ' ' }}"
-      with_items: "{{ groups[hostvars[inventory_hostname].group_names[-1]] }}"
+      loop: "{{ ansible_play_hosts_all }}"
       loop_control:
         loop_var: master_item
       when:
@@ -29,7 +30,7 @@
     - name: redis-cluster-create-cluster | Get all ip address with redis_role="slave" in group
       ansible.builtin.set_fact:
         redis_cluster_slave_ip_address_list: "{{ redis_cluster_slave_ip_address_list + hostvars[slave_item]['ansible_default_ipv4']['address'] + ':' + redis_cluster_conf.slave_port + ' ' }}"
-      with_items: "{{ groups[hostvars[inventory_hostname].group_names[-1]] }}"
+      loop: "{{ ansible_play_hosts_all }}"
       loop_control:
         loop_var: slave_item
       when:
@@ -38,7 +39,7 @@
     - name: redis-cluster-create-cluster | Check redis_cluster_ip_address_list length
       ansible.builtin.assert:
         that:
-          - (redis_cluster_ip_address_list | length | int) % 2 == 0 and redis_cluster_replica > 0
+          - ansible_play_hosts_all | length % 2 == 0 and redis_cluster_replica > 0
         fail_msg: "Cannot create redis cluster due to the_number_of_instances % 2 = 1. The_number_of_instances must even."
         success_msg: "look good"
       register: check_redis_cluster_length
@@ -68,4 +69,4 @@
 
   when:
     - redis_cluster_status.stat.exists == False
-    - inventory_hostname ==  groups[hostvars[inventory_hostname].group_names[-1]][0]
+    - redis_role == "master"
